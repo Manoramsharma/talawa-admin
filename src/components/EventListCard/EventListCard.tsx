@@ -32,6 +32,8 @@ function EventListCard(props: EventListCardProps): JSX.Element {
   const [alldaychecked, setAllDayChecked] = useState(true);
   const [recurringchecked, setRecurringChecked] = useState(false);
   const [publicchecked, setPublicChecked] = useState(true);
+  const [eventModalIsOpen, setEventModalIsOpen] = useState(false);
+  const [screentModalIsOpen, setScreenModalIsOpen] = useState(false);
   const [registrablechecked, setRegistrableChecked] = React.useState(false);
   const [formState, setFormState] = useState({
     title: '',
@@ -123,6 +125,13 @@ function EventListCard(props: EventListCardProps): JSX.Element {
       }
     }
   };
+  
+  const showAddVolunteerModal = () => {
+   setEventModalIsOpen(true);
+ };
+    const showCheckinScreen = () => {
+   setScreenModalIsOpen(true);
+ };
 
   return (
     <>
@@ -363,6 +372,27 @@ function EventListCard(props: EventListCardProps): JSX.Element {
                   </div>
                 </div>
               </div>
+              //Buttons to add volunteer and to open checkin screen
+<!--               <div className={styles.dispflex}>
+              <Button
+                variant="success"
+                className={styles.addbtn}
+                onClick={showAddVolunteerModal}
+                data-testid="createEventVolunteerBtn"
+              >
+                <i className="fa fa-plus"></i> {t('addVolunteer')}
+              </Button>
+          </div> 
+               <div className={styles.dispflex}>
+              <Button
+                variant="success"
+                className={styles.addbtn}
+                onClick={showCheckinScreen}
+                data-testid="showCheckinScreenBtn"
+              >
+                <i className="fa fa-plus"></i> {t('checkin')}
+              </Button>
+          </div>  -->
               <div className="modal-footer">
                 <button
                   type="button"
