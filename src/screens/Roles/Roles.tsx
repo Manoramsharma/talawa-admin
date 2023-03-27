@@ -6,7 +6,10 @@ import { useTranslation } from 'react-i18next';
 
 import styles from './Roles.module.css';
 import ListNavbar from 'components/ListNavbar/ListNavbar';
-import { USER_LIST } from 'GraphQl/Queries/Queries';
+import {
+  ORGANIZATION_CONNECTION_LIST,
+  USER_LIST,
+} from 'GraphQl/Queries/Queries';
 import { UPDATE_USERTYPE_MUTATION } from 'GraphQl/Mutations/mutations';
 import PaginationList from 'components/PaginationList/PaginationList';
 
@@ -19,6 +22,7 @@ const Roles = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchByName, setSearchByName] = useState('');
+  const [count, setCount] = useState(0);
 
   useEffect(() => {
     const userType = localStorage.getItem('UserType');
@@ -28,9 +32,35 @@ const Roles = () => {
     setComponentLoader(false);
   }, []);
 
+  useEffect(() => {
+    if (searchByName !== '') {
+      refetch({
+        filter: searchByName,
+      });
+    } else {
+      if (count !== 0) {
+        refetch({
+          filter: searchByName,
+        });
+      }
+    }
+  }, [count, searchByName]);
+
   const { data, loading: users_loading, refetch } = useQuery(USER_LIST);
 
   const [updateUserType] = useMutation(UPDATE_USERTYPE_MUTATION);
+
+  const { data: dataOrgs } = useQuery(ORGANIZATION_CONNECTION_LIST);
+
+  useEffect(() => {
+    if (!dataOrgs) {
+      return;
+    }
+
+    if (dataOrgs.organizationsConnection.length === 0) {
+      toast.warning(t('noOrgError'));
+    }
+  }, [dataOrgs]);
 
   if (componentLoader || users_loading) {
     return <div className="loader"></div>;
@@ -85,14 +115,11 @@ const Roles = () => {
   const handleSearchByName = (e: any) => {
     const { value } = e.target;
     setSearchByName(value);
-
-    refetch({
-      filter: searchByName,
-    });
+    setCount((prev) => prev + 1);
   };
 
   return (
-    <>
+    <div data-testid="roles-header">
       <ListNavbar />
       <Row>
         <Col sm={3}>
@@ -116,6 +143,7 @@ const Roles = () => {
             <Row className={styles.justifysp}>
               <p className={styles.logintitle}>{t('usersList')}</p>
             </Row>
+
             <div className={styles.list_box}>
               <div className="table-responsive">
                 <table className={`table table-hover ${styles.userListTable}`}>
@@ -231,6 +259,7 @@ const Roles = () => {
                       count={data ? data.users.length : 0}
                       rowsPerPage={rowsPerPage}
                       page={page}
+                      data-testid="something"
                       onPageChange={handleChangePage}
                       onRowsPerPageChange={handleChangeRowsPerPage}
                     />
@@ -241,7 +270,7 @@ const Roles = () => {
           </div>
         </Col>
       </Row>
-    </>
+    </div>
   );
 };
 

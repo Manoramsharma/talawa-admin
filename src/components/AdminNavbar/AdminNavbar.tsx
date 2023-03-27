@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import Cookies from 'js-cookie';
 import i18next from 'i18next';
 import { toast } from 'react-toastify';
-
+import MenuIcon from '@mui/icons-material/Menu';
 import styles from './AdminNavbar.module.css';
 import AboutImg from 'assets/images/defaultImg.png';
 import { ORGANIZATIONS_LIST } from 'GraphQl/Queries/Queries';
@@ -75,9 +75,9 @@ function AdminNavbar({ targets, url_1 }: NavbarProps): JSX.Element {
   }, []);
 
   useEffect(() => {
-    if (data && data.organizations[0].spamCount) {
+    if (data && data?.organizations[0].spamCount) {
       setSpamCountData(
-        data.organizations[0].spamCount.filter(
+        data?.organizations[0].spamCount.filter(
           (spam: any) => spam.isReaded === false
         )
       );
@@ -98,7 +98,7 @@ function AdminNavbar({ targets, url_1 }: NavbarProps): JSX.Element {
 
   let OrgName;
   if (data) {
-    OrgName = data.organizations[0].name;
+    OrgName = data?.organizations[0].name;
   }
 
   return (
@@ -108,7 +108,7 @@ function AdminNavbar({ targets, url_1 }: NavbarProps): JSX.Element {
           <div className={styles.logo}>
             {data?.organizations[0].image ? (
               <img
-                src={data.organizations[0].image}
+                src={data?.organizations[0].image}
                 className={styles.roundedcircle}
                 data-testid={'orgLogoPresent'}
               />
@@ -143,15 +143,10 @@ function AdminNavbar({ targets, url_1 }: NavbarProps): JSX.Element {
                   <Dropdown className={styles.dropdowns}>
                     <Dropdown.Toggle
                       variant=""
-                      className={styles.dropdowntoggle}
+                      id={name}
+                      className={`${styles.dropdowntoggle} ${styles.navlinks_dropdown}`}
                     >
-                      <Nav.Link
-                        href={url}
-                        id={name}
-                        className={styles.navlinks_dropdown}
-                      >
-                        {t(name)}
-                      </Nav.Link>
+                      {t(name)}
                     </Dropdown.Toggle>
                     {subTargets && (
                       <Dropdown.Menu className={styles.dropdowns}>
@@ -185,16 +180,14 @@ function AdminNavbar({ targets, url_1 }: NavbarProps): JSX.Element {
           >
             <Dropdown className={styles.dropdowns}>
               <Dropdown.Toggle
-                variant=""
+                variant="white"
                 id="dropdown-basic"
                 data-testid="logoutDropdown"
               >
                 {data?.organizations[0].image ? (
-                  <img
-                    src={data.organizations[0].image}
-                    className={styles.roundedcircle}
-                    data-testid="navbarOrgImagePresent"
-                  />
+                  <span>
+                    <MenuIcon></MenuIcon>
+                  </span>
                 ) : (
                   <img
                     src={AboutImg}

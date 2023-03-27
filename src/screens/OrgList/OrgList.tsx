@@ -21,6 +21,7 @@ import PaginationList from 'components/PaginationList/PaginationList';
 import debounce from 'utils/debounce';
 import convertToBase64 from 'utils/convertToBase64';
 import AdminDashListCard from 'components/AdminDashListCard/AdminDashListCard';
+import { Alert, AlertTitle } from '@mui/material';
 
 function OrgList(): JSX.Element {
   const { t } = useTranslation('translation', { keyPrefix: 'orgList' });
@@ -36,7 +37,6 @@ function OrgList(): JSX.Element {
     location: '',
     image: '',
   });
-  const [, setSearchByName] = useState('');
 
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -144,18 +144,9 @@ function OrgList(): JSX.Element {
 
   const handleSearchByName = (e: any) => {
     const { value } = e.target;
-    setSearchByName(value);
-
-    if (value.length === 0) {
-      refetch({
-        filter: '',
-      });
-    } else {
-      setSearchByName(value);
-      refetch({
-        filter: value,
-      });
-    }
+    refetch({
+      filter: value,
+    });
   };
   let dataRevOrg;
   const debouncedHandleSearchByName = debounce(handleSearchByName);
@@ -169,7 +160,9 @@ function OrgList(): JSX.Element {
         <Col xl={3}>
           <div className={styles.sidebar}>
             <div className={`${styles.mainpageright} ${styles.sidebarsticky}`}>
-              <h6 className={styles.logintitle}>{t('you')}</h6>
+              <h6 className={`${styles.logintitle} ${styles.youheader}`}>
+                {t('you')}
+              </h6>
               <p>
                 {t('name')}:
                 <span>
@@ -197,7 +190,7 @@ function OrgList(): JSX.Element {
             </div>
           </div>
         </Col>
-        <Col xl={8}>
+        <Col xl={8} className={styles.mainpagerightContainer}>
           <div className={styles.mainpageright}>
             <div className={styles.justifysp}>
               <p className={styles.logintitle}>{t('organizationList')}</p>
@@ -223,7 +216,7 @@ function OrgList(): JSX.Element {
               />
             </div>
             <div className={styles.list_box}>
-              {data &&
+              {data?.organizationsConnection.length > 0 ? (
                 (rowsPerPage > 0
                   ? dataRevOrg.slice(
                       page * rowsPerPage,
@@ -240,7 +233,7 @@ function OrgList(): JSX.Element {
                     createdAt: string;
                     location: string | null;
                   }) => {
-                    if (data_2?.user.userType == 'SUPERADMIN') {
+                    if (data_2 && data_2.user.userType == 'SUPERADMIN') {
                       return (
                         <SuperDashListCard
                           id={datas._id}
@@ -272,7 +265,15 @@ function OrgList(): JSX.Element {
                       );
                     }
                   }
-                )}
+                )
+              ) : (
+                <div>
+                  <Alert variant="filled" severity="error">
+                    <AlertTitle>{t('noOrgErrorTitle')}</AlertTitle>
+                    {t('noOrgErrorDescription')}
+                  </Alert>
+                </div>
+              )}
             </div>
             <div>
               <table

@@ -1,7 +1,7 @@
 /* eslint-disable react/react-in-jsx-scope */
 import Calendar from './Calendar';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { MockedProvider, MockLink } from '@apollo/react-testing';
+import { MockedProvider } from '@apollo/react-testing';
 import { I18nextProvider } from 'react-i18next';
 
 import {
@@ -9,6 +9,7 @@ import {
   UPDATE_EVENT_MUTATION,
 } from 'GraphQl/Mutations/mutations';
 import i18nForTest from 'utils/i18nForTest';
+import { StaticMockLink } from 'utils/StaticMockLink';
 
 const eventData = [
   {
@@ -81,7 +82,7 @@ const MOCKS = [
   },
 ];
 
-const mocklink = new MockLink(MOCKS, false, { showWarnings: false });
+const link = new StaticMockLink(MOCKS, true);
 
 describe('Calendar', () => {
   it('renders weekdays', () => {
@@ -133,7 +134,7 @@ describe('Calendar', () => {
   it('Should show prev and next month on clicking < & > buttons', () => {
     //testing previous month button
     render(
-      <MockedProvider addTypename={false} link={mocklink}>
+      <MockedProvider addTypename={false} link={link}>
         <I18nextProvider i18n={i18nForTest}>
           <Calendar eventData={eventData} />
         </I18nextProvider>
@@ -170,11 +171,127 @@ describe('Calendar', () => {
       },
     ];
     render(
-      <MockedProvider addTypename={false} link={mocklink}>
+      <MockedProvider addTypename={false} link={link}>
         <I18nextProvider i18n={i18nForTest}>
           <Calendar eventData={currentDayEventMock} />
         </I18nextProvider>
       </MockedProvider>
+    );
+  });
+});
+
+describe('Events rendered depending on User Type', () => {
+  const currentDayEventMock = [
+    {
+      _id: '0',
+      title: 'demo',
+      description: 'agrsg',
+      startDate: new Date().toISOString().split('T')[0],
+      endDate: new Date().toISOString().split('T')[0],
+      location: 'delhi',
+      startTime: '10:00',
+      endTime: '12:00',
+      allDay: false,
+      recurring: false,
+      isPublic: false,
+      registrants: [{ userId: '222' }],
+      isRegisterable: true,
+    },
+  ];
+  it('Should render private event for super admin', () => {
+    const userRole = 'SUPERADMIN';
+
+    const { getByTestId } = render(
+      <MockedProvider addTypename={false} link={link}>
+        <I18nextProvider i18n={i18nForTest}>
+          <Calendar eventData={currentDayEventMock} userRole={userRole} />
+        </I18nextProvider>
+      </MockedProvider>
+    );
+
+    const childElement = getByTestId('deleteEventModalBtn');
+    expect(childElement).toBeInTheDocument();
+  });
+  it('Should render private event for organization admin', () => {
+    const userId = '222';
+    const userRole = 'ADMIN';
+    const orgData = {
+      admins: [
+        {
+          _id: userId,
+        },
+      ],
+    };
+
+    const { getByTestId } = render(
+      <MockedProvider addTypename={false} link={link}>
+        <I18nextProvider i18n={i18nForTest}>
+          <Calendar
+            eventData={currentDayEventMock}
+            orgData={orgData}
+            userRole={userRole}
+            userId={userId}
+          />
+        </I18nextProvider>
+      </MockedProvider>
+    );
+
+    const childElement = getByTestId('deleteEventModalBtn');
+    expect(childElement).toBeInTheDocument();
+  });
+  it('Should render private event for registered user', () => {
+    const userId = '222';
+    const userRole = 'USER';
+    const orgData = {
+      admins: [
+        {
+          _id: userId,
+        },
+      ],
+    };
+
+    const { getByTestId } = render(
+      <MockedProvider addTypename={false} link={link}>
+        <I18nextProvider i18n={i18nForTest}>
+          <Calendar
+            eventData={currentDayEventMock}
+            orgData={orgData}
+            userRole={userRole}
+            userId={userId}
+          />
+        </I18nextProvider>
+      </MockedProvider>
+    );
+
+    const childElement = getByTestId('deleteEventModalBtn');
+    expect(childElement).toBeInTheDocument();
+  });
+  it('Should not private render event for unregistered user', () => {
+    const userRole = 'USER';
+    const userId = '221';
+    const orgData = {
+      admins: [
+        {
+          _id: '333',
+        },
+      ],
+    };
+
+    const { getByTestId } = render(
+      <MockedProvider addTypename={false} link={link}>
+        <I18nextProvider i18n={i18nForTest}>
+          <Calendar
+            eventData={currentDayEventMock}
+            orgData={orgData}
+            userRole={userRole}
+            userId={userId}
+          />
+        </I18nextProvider>
+      </MockedProvider>
+    );
+
+    expect(() => getByTestId('deleteEventModalBtn')).toThrowError(
+      'Unable to find an element by: [data-testid="deleteEventModalBtn"]'
     );
   });
 });

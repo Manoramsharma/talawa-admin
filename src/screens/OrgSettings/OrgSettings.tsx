@@ -13,6 +13,7 @@ import { MEMBERSHIP_REQUEST } from 'GraphQl/Queries/Queries';
 import { useSelector } from 'react-redux';
 import { RootState } from 'state/reducers';
 import { useTranslation } from 'react-i18next';
+import defaultImg from 'assets/third_image.png';
 
 function OrgSettings(): JSX.Element {
   const { t } = useTranslation('translation', {
@@ -61,7 +62,7 @@ function OrgSettings(): JSX.Element {
 
   /* istanbul ignore next */
   if (error) {
-    window.location.href = '/orglist';
+    window.location.replace('/orglist');
   }
 
   return (
@@ -156,7 +157,7 @@ function OrgSettings(): JSX.Element {
             <div>{screenVariable == 3 ? <OrgDelete /> : null}</div>
             <div>
               {screenVariable == 4 ? (
-                data.organizations.membershipRequests ? (
+                data?.organizations?.membershipRequests ? (
                   /* istanbul ignore next */
                   data.organizations.map(
                     /* istanbul ignore next */
@@ -180,7 +181,7 @@ function OrgSettings(): JSX.Element {
                           memberName={datas.membershipRequests.user.firstName}
                           memberLocation="India"
                           joinDate="12/12/2012"
-                          memberImage="https://via.placeholder.com/200x100"
+                          memberImage={defaultImg}
                           email={datas.membershipRequests.user.email}
                         />
                       );

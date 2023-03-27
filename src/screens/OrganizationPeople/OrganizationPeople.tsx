@@ -113,23 +113,23 @@ function OrganizationPeople(): JSX.Element {
     }
   };
 
-  const handleEventTitleSearchChange = (e: any) => {
-    const { value } = e.target;
-    if (state === 0) {
-      const filterData = {
-        orgId: currentUrl,
-        event_title_contains: value,
-      };
-      refetchMembers(filterData);
-    } else if (state === 1) {
-      const filterData = {
-        orgId: currentUrl,
-        event_title_contains: value,
-        admin_for: currentUrl,
-      };
-      refetchAdmins(filterData);
-    }
-  };
+  // const handleEventTitleSearchChange = (e: any) => {
+  //   const { value } = e.target;
+  //   if (state === 0) {
+  //     const filterData = {
+  //       orgId: currentUrl,
+  //       event_title_contains: value,
+  //     };
+  //     refetchMembers(filterData);
+  //   } else if (state === 1) {
+  //     const filterData = {
+  //       orgId: currentUrl,
+  //       event_title_contains: value,
+  //       admin_for: currentUrl,
+  //     };
+  //     refetchAdmins(filterData);
+  //   }
+  // };
 
   /* istanbul ignore next */
   const handleChangePage = (
@@ -150,9 +150,6 @@ function OrganizationPeople(): JSX.Element {
   const debouncedHandleFirstNameSearchChange = debounce(
     handleFirstNameSearchChange
   );
-  const debouncedHandleEventTitleSearchChange = debounce(
-    handleEventTitleSearchChange
-  );
 
   return (
     <>
@@ -172,16 +169,18 @@ function OrganizationPeople(): JSX.Element {
                 required
                 onChange={debouncedHandleFirstNameSearchChange}
               />
-              <h6 className={styles.searchtitle}>{t('filterByEvent')}</h6>
-              <input
-                type="name"
-                id="searchevent"
-                placeholder={t('searchevent')}
-                autoComplete="off"
-                required
-                onChange={debouncedHandleEventTitleSearchChange}
-              />
               <div className={styles.radio_buttons}>
+                <input
+                  id="userslist"
+                  value="userslist"
+                  name="displaylist"
+                  type="radio"
+                  defaultChecked={state == 2 ? true : false}
+                  onClick={() => {
+                    setState(2);
+                  }}
+                />
+                <label htmlFor="userslist">{t('users')}</label>
                 <input
                   id="memberslist"
                   value="memberslist"
@@ -204,17 +203,6 @@ function OrganizationPeople(): JSX.Element {
                   }}
                 />
                 <label htmlFor="adminslist">{t('admins')}</label>
-                <input
-                  id="userslist"
-                  value="userslist"
-                  name="displaylist"
-                  type="radio"
-                  defaultChecked={state == 2 ? true : false}
-                  onClick={() => {
-                    setState(2);
-                  }}
-                />
-                <label htmlFor="userslist">{t('users')}</label>
               </div>
             </div>
           </div>
@@ -223,7 +211,13 @@ function OrganizationPeople(): JSX.Element {
           <Container>
             <div className={styles.mainpageright}>
               <Row className={styles.justifysp}>
-                <p className={styles.logintitle}>{t('members')}</p>
+                <p className={styles.logintitle}>
+                  {state == 0
+                    ? t('members')
+                    : state == 1
+                    ? t('admins')
+                    : t('users')}
+                </p>
               </Row>
               <div className={styles.list_box}>
                 {state == 0

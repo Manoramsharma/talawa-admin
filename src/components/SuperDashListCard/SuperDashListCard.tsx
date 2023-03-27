@@ -14,7 +14,7 @@ interface SuperDashListCardProps {
   createdDate: string;
   image: string;
   admins: any;
-  members: string;
+  members: any;
 }
 
 function SuperDashListCard(props: SuperDashListCardProps): JSX.Element {
@@ -24,11 +24,13 @@ function SuperDashListCard(props: SuperDashListCardProps): JSX.Element {
 
   function handleClick() {
     const url = '/orgdash/id=' + props.id;
+
     /*
     WARNING!
      Please endeavor to NOT remove both the window.location.replace(url) and the history.push(url) as both are very important for routing correctly.
      Removal of the window.location.replace will result to a crash on other depending routes. History.push(url) is being used to alongside window.location.replace to keep track of the browser history stack and ensure consistency with the react component life cycle.
      */
+
     window.location.replace(url);
     history.push(url);
     // Do not change the lines above.
@@ -42,9 +44,13 @@ function SuperDashListCard(props: SuperDashListCardProps): JSX.Element {
     <>
       <Row className={styles.orglist}>
         {props.image ? (
-          <img src={props.image} className={styles.orgimg} />
+          <div className={styles.orgImgContainer}>
+            <img src={props.image} className={styles.orgimg} />
+          </div>
         ) : (
-          <img src={AboutImg} className={styles.orgimg} />
+          <div className={styles.orgImgContainer}>
+            <img src={AboutImg} className={styles.orgimg} />
+          </div>
         )}
         <Col className={styles.singledetails}>
           <div className={styles.singledetails_data_left}>
@@ -69,6 +75,7 @@ function SuperDashListCard(props: SuperDashListCardProps): JSX.Element {
                 onClick={handleClick}
                 disabled={
                   userType !== 'SUPERADMIN' &&
+                  props.admins.length > 0 &&
                   !props.admins.some((admin: any) => admin._id === userId)
                 }
               >
